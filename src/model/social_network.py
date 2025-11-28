@@ -11,11 +11,13 @@ class SocialNetwork:
 
         self.n_agents = len(agents)
         self.graph = None
+        self.node_positions = None
 
         self.sort_agents_by_index()
         self.init_opinion_vector()
         self.init_influence_matrix()
         self.update_graph()
+        self.node_positions = nx.spring_layout(self.graph, seed=42)
 
     def sort_agents_by_index(self) -> None:
         self.agents.sort(key=lambda agent: agent.index)
@@ -46,74 +48,11 @@ class SocialNetwork:
     def get_opinion_vector(self) -> np.ndarray:
         return self.opinion_vector
 
-    def print_network_graph(self, include_self_loops: bool = True) -> None:
-        """
-        This method prints the network graph using Matplotlib and NetworkX.
-        It is necesaary to make sure when two agents influence each other, the edges are drawn with curves to avoid overlapping.
-        In the case of one-directional influence, straight edges are drawn.
-        It is also possible to exclude self-loops from the visualization by setting include_self_loops to False.
-        """
-        fig, ax = plt.subplots()
-
-        # Define the positions of nodes using a layout algorithm
-        pos = nx.spring_layout(self.graph, seed=42)
-        
-        # Get edge weights for labeling
-        edge_labels = nx.get_edge_attributes(self.graph, 'weight')
-
-        # Get edges to draw
-        if include_self_loops:
-            edges_to_draw = self.graph.edges()
-        else:
-            # Exclude self-loops
-            self_loops = set(nx.selfloop_edges(self.graph))
-            edges_to_draw = [edge for edge in self.graph.edges() if edge not in self_loops]
-
-        # Draw nodes and their labels
-        nx.draw_networkx_nodes(self.graph, pos, ax=ax)
-        nx.draw_networkx_labels(self.graph, pos, ax=ax, font_size=10)
-
-        # Draw curved edges and their labels
-        curved_edges = [edge for edge in edges_to_draw if (edge[1], edge[0]) in edges_to_draw]
-        curved_edges_labels = {edge: label for edge, label in edge_labels.items() if edge in curved_edges}
-        nx.draw_networkx_edges(
-            self.graph,
-            pos,
-            edgelist=curved_edges,
-            connectionstyle='arc3, rad=0.15',
-            ax=ax
-        )
-        nx.draw_networkx_edge_labels(
-            self.graph,
-            pos,
-            edge_labels=curved_edges_labels,
-            connectionstyle='arc3, rad=0.15',
-            font_size=8,
-            label_pos=0.5,
-            ax=ax
-        )
-        
-        # Draw straight edges and their labels
-        straight_edges = list(set(edges_to_draw) - set(curved_edges))
-        straight_edges_labels = {edge: label for edge, label in edge_labels.items() if edge in straight_edges}
-        nx.draw_networkx_edges(
-            self.graph,
-            pos,
-            edgelist=straight_edges,
-            ax=ax
-        )
-        nx.draw_networkx_edge_labels(
-            self.graph,
-            pos,
-            edge_labels=straight_edges_labels,
-            font_size=8,
-            label_pos=0.5,
-            ax=ax
-        )
-
-        plt.tight_layout()
-        plt.show()
+    def get_graph(self) -> nx.DiGraph:
+        return self.graph
     
+    def get_node_positions(self) -> dict:
+        return self.node_positions
 
     def update_opinions(self) -> None:
         """
@@ -128,7 +67,6 @@ class SocialNetwork:
             agent.set_opinion(self.opinion_vector[i, 0])
             agent.add_iteration()
         
-    
     def update_influences(self, **kwargs) -> None:
         """
         This method updates the influence matrix by asking each agent to update its influence_of_others vector.

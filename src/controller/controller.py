@@ -1,5 +1,7 @@
 from model import SocialNetwork, Agent
+from view import View
 import numpy as np
+import matplotlib.pyplot as plt
 from typing import List
 
 
@@ -10,11 +12,13 @@ class Controller:
         self.opinion_history: List[np.ndarray] = []
         self.influence_matrix_history: List[np.ndarray] = []
         self.backward_product: np.ndarray = None
+        self.network_graphs: List[plt.Figure] = []
         self.backward_product_history: List[np.ndarray] = []
 
         # Initialize backward_product and histories with initial state
         self.append_opinion_vector()
         self.append_influence_matrix()
+        self.append_network_graph()
         self.backward_product = np.eye(self.social_network.n_agents, dtype=np.float64)
     
     def append_opinion_vector(self) -> None:
@@ -22,6 +26,9 @@ class Controller:
 
     def append_influence_matrix(self) -> None:
         self.influence_matrix_history.append(self.social_network.get_influence_matrix().copy())
+
+    def append_network_graph(self) -> None:
+        self.network_graphs.append(self.social_network.get_graph().copy())
 
     def append_backward_product(self) -> None:
         self.backward_product_history.append(self.backward_product.copy())
@@ -42,6 +49,42 @@ class Controller:
 
             self.append_opinion_vector()
             self.append_influence_matrix()
+            self.append_network_graph()
+    
+    def plot_opinion_history(self) -> None:
+        View.plot_opinion_history(self, self.opinion_history)
+    
+    def display_network_graphs_animation(self, include_self_loops: bool = False) -> None:
+        """
+        This method displays a Matplotlib figure that allows navigating through the network graphs of each iteration using left and right arrow keys.
+        """
+        fig, ax = plt.subplots()
+        position = self.social_network.get_node_positions()
+        total_graphs = len(self.network_graphs)
+        current_index = [0]  # Mutable container to track the current graph index
+
+        def draw_graph(index: int) -> None:
+            ax.clear()
+            View.display_network_graph(
+                graph=self.network_graphs[index],
+                position=position,
+                include_self_loops=include_self_loops,
+                ax=ax
+            )
+            ax.set_title(f"Iteration {index}")
+            fig.canvas.draw_idle()
+        
+        def on_key(event) -> None:
+            if event.key == 'right':
+                current_index[0] = (current_index[0] + 1) % total_graphs
+            elif event.key == 'left':
+                current_index[0] = (current_index[0] - 1) % total_graphs
+
+            draw_graph(current_index[0])
+
+        fig.canvas.mpl_connect('key_press_event', on_key)
+        draw_graph(current_index[0])
+        plt.show()        
 
     def get_first_opinion_vector(self) -> np.ndarray:
         return self.opinion_history[0]
@@ -61,6 +104,9 @@ class Controller:
     def get_influence_matrix_history(self) -> List[np.ndarray]:
         return self.influence_matrix_history
     
+    def get_backward_product_history(self) -> List[np.ndarray]:
+        return self.backward_product_history
+    
     def get_final_opinion_via_backward_product(self) -> np.ndarray:
         """
         It is possible to compute the final opinion vector by multiplying the initial opinion vector by the backward product.
@@ -68,8 +114,10 @@ class Controller:
         """
         return self.backward_product @ self.get_first_opinion_vector()
 
-    def print_current_network_graph(self, include_self_loops: bool = True) -> None:
-        self.social_network.print_network_graph(include_self_loops=include_self_loops)
+    def print_current_network_graph(self, include_self_loops: bool = False) -> None:
+        graph = self.network_graphs[-1]
+        position = self.social_network.get_node_positions()
+        View.display_network_graph(graph, position, include_self_loops)
 
     def print_opinion_history(self) -> None:
         for i, opinion_vector in enumerate(self.opinion_history):
