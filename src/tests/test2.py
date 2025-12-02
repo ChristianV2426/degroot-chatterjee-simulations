@@ -3,7 +3,7 @@ from controller import Controller
 import numpy as np
 
 
-if __name__ == "__main__":
+def test2():
     def equal_influence_function(iteration: int, current_influence: float, own_index: int, other_agent_index: int, *args, **kwargs) -> float:
         """
         Adjust the influence of an agent so that it gradually converges to 1/n_agents over time.
