@@ -20,6 +20,9 @@ class Agent:
         self.iteration = 0
         self.agents_in_network = influence_of_others.shape[0]
         self.normalize_influence()
+
+    def get_index(self) -> int:
+        return self.index
     
     def get_opinion(self) -> float:
         return self.opinion
@@ -29,6 +32,12 @@ class Agent:
 
     def get_influence_of_others(self) -> NDArray[np.float64]:
         return self.influence_of_others
+
+    def get_influence_change_functions(self) -> Optional[List[Callable[..., float]]]:
+        return self.influence_change_functions
+    
+    def set_influence_change_functions(self, functions: List[Callable[..., float]]) -> None:
+        self.influence_change_functions = functions
     
     def add_iteration(self) -> None:
         self.iteration += 1
@@ -76,8 +85,29 @@ class Agent:
                 if func is not None:
                     self.influence_of_others[i] = func(
                         iteration=self.iteration,
+                        own_index=self.index,
+                        other_agent_index=i,
                         current_influence=self.influence_of_others[i],
                         **kwargs
                     )
             self.normalize_influence()
+    
+    @staticmethod
+    def generate_random_agent(index: int, n_agents: int, seed: Optional[int] = None) -> 'Agent':
+        """
+        This static method generates an agent with a random opinion and random influence_of_others vector.
+        """
+        if seed is not None:
+            np.random.seed(seed + index)
+
+        opinion = np.random.beta(0.5, 0.5)
+        influence_of_others = np.random.beta(0.5, 0.5, size=n_agents).astype(np.float64)
+        
+        agent = Agent(
+            index=index,
+            opinion=opinion,
+            influence_of_others=influence_of_others
+        )
+        return agent
+            
             

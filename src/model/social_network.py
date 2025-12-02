@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import List
+from typing import List, Optional, Callable
 from model import Agent
 
 
@@ -53,6 +53,10 @@ class SocialNetwork:
     
     def get_node_positions(self) -> dict:
         return self.node_positions
+    
+    def set_influence_functions_of_agents(self, functions: List[Callable[..., float]]) -> None:
+        for agent in self.agents:
+            agent.set_influence_change_functions(functions)
 
     def update_opinions(self) -> None:
         """
@@ -77,4 +81,14 @@ class SocialNetwork:
             agent.update_influence_of_others(**kwargs)
             self.influence_matrix[i, :] = agent.get_influence_of_others()
         self.update_graph()
+    
+    @staticmethod
+    def generate_random_social_network(n_agents: int, seed: Optional[int] = None) -> 'SocialNetwork':
+        if seed is None:
+            seed = np.random.randint(0, 1_000_000_000)
+            print(f"Generated seed for social network: {seed}")
+            
+
+        agents = [Agent.generate_random_agent(index=i, n_agents=n_agents, seed=seed) for i in range(n_agents)]
+        return SocialNetwork(agents=agents)
         
