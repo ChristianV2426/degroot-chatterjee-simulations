@@ -35,8 +35,8 @@ def test3():
         
         return current_influence + adjustment
     
-    n_agents = 3
-    seed = 794039653
+    n_agents = 5
+    seed = 532514018
 
     influence_chage_functions = [
         lambda iteration, current_influence, own_index, other_agent_index, **kwargs: stubborn_influence_function(
@@ -45,7 +45,7 @@ def test3():
             own_index=own_index,
             other_agent_index=other_agent_index,
             n_agents=n_agents,
-            alpha=0.1
+            alpha=0.2
         ) 
         for _ in range(n_agents)
     ]

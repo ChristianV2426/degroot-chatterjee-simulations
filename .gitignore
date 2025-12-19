@@ -102,3 +102,9 @@ Pipfile.lock
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Word files
+*.docx
+*.docm
+*.dotx
+*.dotm

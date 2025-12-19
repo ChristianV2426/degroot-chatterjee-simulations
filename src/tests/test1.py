@@ -26,7 +26,7 @@ def test1():
         return current_influence + adjustment
     
     n_agents = 3
-    seed = 371504638
+    seed = 406982854
 
     influence_chage_functions = [
         lambda iteration, current_influence, own_index, other_agent_index, **kwargs: equal_influence_function(

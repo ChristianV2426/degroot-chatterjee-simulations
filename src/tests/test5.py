@@ -3,7 +3,7 @@ from controller import Controller
 import numpy as np
 
 
-def test4():
+def test5():
     def stubborn_influence_function(iteration: int, current_influence: float, own_index: int, other_agent_index: int, *args, **kwargs) -> float:
         """
         Adjust the influence of an agent to make it stubborn, maintaining high self-influence and low influence from others.
@@ -23,9 +23,9 @@ def test4():
         alpha = kwargs.get('alpha', 0.1)
 
         if own_index == other_agent_index:
-            return 1 - alpha / (iteration + 1)
+            return 1 - alpha / (iteration + 1)**2
         else:
-            return alpha / (iteration + 1)
+            return alpha / (iteration + 1)**2
     
     n_agents = 3
 

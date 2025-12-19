@@ -38,7 +38,7 @@ def test2():
         ) 
         for _ in range(n_agents)
     ]
-    influence_chage_functions = None
+    # influence_chage_functions = None
     
     agent0 = Agent(
         index=0,
