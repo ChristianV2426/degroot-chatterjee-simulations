@@ -1,6 +1,7 @@
 from model import SocialNetwork
 from controller import Controller
 import numpy as np
+from math import exp
 
 
 def test1():
@@ -25,8 +26,8 @@ def test1():
         adjustment = alpha * (target_influence - current_influence)
         return current_influence + adjustment
     
-    n_agents = 3
-    seed = 406982854
+    n_agents = 8
+    seed = 371504638
 
     influence_chage_functions = [
         lambda iteration, current_influence, own_index, other_agent_index, **kwargs: equal_influence_function(
@@ -40,11 +41,18 @@ def test1():
         for _ in range(n_agents)
     ]
     influence_chage_functions = None
+
+    gamma = 1000
+
+    def distribution_function(opinion_difference: float) -> float:
+        return 1.0 / (1.0 + gamma * opinion_difference**2)
+        # return exp(-gamma * opinion_difference**2)
     
     social_network = SocialNetwork.generate_random_social_network(n_agents=n_agents, seed=seed)
     social_network.set_influence_functions_of_agents(influence_chage_functions)
-    controller = Controller(social_network=social_network, n_iterations=10)
-    controller.run_simulation()
+    social_network.set_distribution_function(distribution_function)
+    controller = Controller(social_network=social_network, n_iterations=18)
+    controller.run_simulation_v2()
     # controller.display_network_graphs_animation(include_self_loops=True)
     controller.plot_opinion_history()
     # print(controller.get_last_opinion_vector())

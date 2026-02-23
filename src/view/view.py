@@ -1,4 +1,3 @@
-from turtle import pos
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,7 +8,7 @@ from model.social_network import SocialNetwork
 class View:
 
     @staticmethod
-    def plot_opinion_history(opinion_history: List[np.ndarray], n_agents: int) -> None:
+    def plot_opinion_history(opinion_history: List[np.ndarray], n_agents: int, show_labels: bool = True) -> None:
         """
         This method plots the opinion history of all agents over time.
         """
@@ -31,7 +30,8 @@ class View:
         plt.xlabel("Time")
         plt.ylabel("Opinion")
         plt.title("Opinion Evolution Over Time")
-        plt.legend(loc="best")
+        if show_labels:
+            plt.legend(loc='best')
         plt.grid(True)
 
         plt.show()

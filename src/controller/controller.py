@@ -50,12 +50,32 @@ class Controller:
             self.append_opinion_vector()
             self.append_influence_matrix()
             self.append_network_graph()
+
+    def run_simulation_v2(self) -> None:
+        """
+        This method runs the DeGroot simulation for n_iterations, but it uses the update_influences_v2 method of the SocialNetwork, which updates the influence matrix based on a distribution function and the last opinion vector of all agents in the network.
+         At each iteration, it updates the backward product, which is a piece of information that belongs to the Controller, not to the SocialNetwork.
+        Then, it updates the opinions and influences in the SocialNetwork, and appends the new states to the histories.
+         The main difference with the run_simulation method is that the influence matrix is updated using the distribution function and the last opinion vector, which allows for dynamic weights based on opinion differences between agents, rather than a fixed influence matrix.
+        """
+        for iteration in range(self.n_iterations):
+            # self.backward_product = self.social_network.get_influence_matrix() @ self.backward_product
+            # self.append_backward_product()
+
+            self.social_network.update_opinions()
+            self.social_network.update_influences_v2(self.opinion_history[-1])
+            # self.social_network.update_graph()
+
+            self.append_opinion_vector()
+            # self.append_influence_matrix()
+            # self.append_network_graph()
+            
     
-    def plot_opinion_history(self) -> None:
-        View.plot_opinion_history(self.opinion_history, self.social_network.n_agents)
+    def plot_opinion_history(self, show_labels: bool = True) -> None:
+        View.plot_opinion_history(self.opinion_history, self.social_network.n_agents, show_labels=show_labels)
     
     def display_network_graphs_animation(self, include_self_loops: bool = False) -> None:
-        View.display_network_graphs_animation(self.network_graphs, self.social_network, include_self_loops)     
+        View.display_network_graphs_animation(self.network_graphs, self.social_network, include_self_loops=include_self_loops)     
 
     def get_first_opinion_vector(self) -> np.ndarray:
         return self.opinion_history[0]

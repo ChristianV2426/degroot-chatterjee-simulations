@@ -1,13 +1,13 @@
 import networkx as nx
 import numpy as np
-import matplotlib.pyplot as plt
 from typing import List, Optional, Callable
 from model import Agent
 
 
 class SocialNetwork:
-    def __init__(self, agents: List[Agent]) -> None:
+    def __init__(self, agents: List[Agent], distribution_function: Callable[[float], float] = None) -> None:
         self.agents = agents
+        self.distribution_function = distribution_function
 
         self.n_agents = len(agents)
         self.graph = None
@@ -58,6 +58,9 @@ class SocialNetwork:
         for agent in self.agents:
             agent.set_influence_change_functions(functions)
 
+    def set_distribution_function(self, distribution_function: Callable[[float], float]) -> None:
+        self.distribution_function = distribution_function
+
     def update_opinions(self) -> None:
         """
         This method updates the opinion vector according to the DeGroot model:
@@ -74,13 +77,21 @@ class SocialNetwork:
     def update_influences(self, **kwargs) -> None:
         """
         This method updates the influence matrix by asking each agent to update its influence_of_others vector.
-        After updating each agent's influence_of_others, the influence matrix is reconstructed and the graph
-        representation of the social network is updated.
+        After updating each agent's influence_of_others, the influence matrix is reconstructed
         """
         for i, agent in enumerate(self.agents):
             agent.update_influence_of_others(**kwargs)
             self.influence_matrix[i, :] = agent.get_influence_of_others()
-        self.update_graph()
+
+    def update_influences_v2(self, last_opinion_vector: np.ndarray) -> None:
+        """
+        This method updates the influence matrix by asking each agent to update its influence_of_others vector using the distribution function and the last opinion vector of all agents in the network.
+        After updating each agent's influence_of_others, the influence matrix is reconstructed
+        """
+        for i, agent in enumerate(self.agents):
+            agent.update_influence_of_others_v2(self.distribution_function, last_opinion_vector.flatten())
+            self.influence_matrix[i, :] = agent.get_influence_of_others()
+        
     
     @staticmethod
     def generate_random_social_network(n_agents: int, seed: Optional[int] = None) -> 'SocialNetwork':

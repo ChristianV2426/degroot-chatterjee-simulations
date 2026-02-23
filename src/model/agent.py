@@ -91,6 +91,38 @@ class Agent:
                         **kwargs
                     )
             self.normalize_influence()
+
+    def update_influence_of_others_v2(self, distribution_function: Callable[[float], float], last_opinion_vector: np.ndarray) -> None:
+        """
+        This method updates the agent's influence_of_others vector based on the distribution function and the last opinion vector of all agents in the network.
+
+        Steps:
+        1) Check if the agent has all the influence on itself (i.e., influence_of_others[self.index] is close to 1). If so, skip the update to avoid unnecessary calculations.
+        2) If a distribution function is provided, calculate a new distribution vector based on the opinion differences between this agent and all other agents, using the distribution function to determine how much influence to assign to each other agent.
+        3) Normalize the new distribution vector to ensure it sums to 1, and set it as the new influence_of_others vector for this agent.
+        """
+        if (abs(self.influence_of_others[self.index] - 1.0)) <= 1e-4:
+            return
+
+        if distribution_function is not None:
+            # influence_to_redistribute = 1.0 - self.influence_of_others[self.index]
+            distribution_vector = np.zeros(self.agents_in_network, dtype=np.float64)
+
+            for i in range(self.agents_in_network):
+                # if i != self.index and self.influence_of_others[i] != 0.0:
+                if self.influence_of_others[i] != 0.0:
+                    difference_opinion = abs(last_opinion_vector[i] - last_opinion_vector[self.index])
+                    distribution_vector[i] = distribution_function(difference_opinion)
+
+            self.influence_of_others = distribution_vector / distribution_vector.sum()
+            # print(f"Agent {self.index} updated influence_of_others to:\n", self.influence_of_others)
+            
+            # for i in range(self.agents_in_network):
+                # if i != self.index:
+                #     self.influence_of_others[i] = influence_to_redistribute * distribution_vector[i]distribution_vector[i]
+            
+            self.normalize_influence()
+            # print(f"Agent {self.index} normalized influence_of_others to:\n", self.influence_of_others, "\n")
     
     @staticmethod
     def generate_random_agent(index: int, n_agents: int, seed: Optional[int] = None) -> 'Agent':
