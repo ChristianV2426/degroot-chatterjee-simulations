@@ -3,7 +3,7 @@ from controller import Controller
 import numpy as np
 
 
-def test2():
+def simulation2():
     def equal_influence_function(iteration: int, current_influence: float, own_index: int, other_agent_index: int, *args, **kwargs) -> float:
         """
         Adjust the influence of an agent so that it gradually converges to 1/n_agents over time.
@@ -24,22 +24,22 @@ def test2():
         target_influence = 1.0 / n_agents
         adjustment = alpha * (target_influence - current_influence)
         return current_influence + adjustment
-    
+
     n_agents = 4
 
     influence_chage_functions = [
         lambda iteration, current_influence, own_index, other_agent_index, **kwargs: equal_influence_function(
-            iteration=iteration, 
+            iteration=iteration,
             own_index=own_index,
             other_agent_index=other_agent_index,
-            current_influence=current_influence, 
+            current_influence=current_influence,
             n_agents=n_agents,
             alpha=0.3
-        ) 
+        )
         for _ in range(n_agents)
     ]
     influence_chage_functions = None
-    
+
     agent0 = Agent(
         index=0,
         opinion=0.0,
@@ -60,12 +60,12 @@ def test2():
         index=3,
         opinion=0.8,
         influence_of_others=np.array([0, 0, 0.9, 0.1], dtype=np.float64),
-    )   
+    )
 
     social_network = SocialNetwork(agents=[agent0, agent1, agent2, agent3])
     social_network.set_influence_functions_of_agents(influence_chage_functions)
     controller = Controller(social_network=social_network, n_iterations=10)
     controller.run_simulation()
-    controller.display_network_graphs_animation(include_self_loops=True)
+    # controller.display_network_graphs_animation(include_self_loops=True)
     controller.plot_opinion_history()
-    
+    # print(controller.get_last_opinion_vector())

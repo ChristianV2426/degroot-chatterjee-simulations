@@ -1,10 +1,10 @@
 from model import SocialNetwork
 from controller import Controller
 import numpy as np
-from math import exp
+from model.precision import exp
 
 
-def test1():
+def simulation1():
     def equal_influence_function(iteration: int, current_influence: float, own_index: int, other_agent_index: int, *args, **kwargs) -> float:
         """
         Adjust the influence of an agent so that it gradually converges to 1/n_agents over time.
@@ -25,19 +25,19 @@ def test1():
         target_influence = 1.0 / n_agents
         adjustment = alpha * (target_influence - current_influence)
         return current_influence + adjustment
-    
+
     n_agents = 8
     seed = 371504638
 
     influence_chage_functions = [
         lambda iteration, current_influence, own_index, other_agent_index, **kwargs: equal_influence_function(
-            iteration=iteration, 
+            iteration=iteration,
             own_index=own_index,
             other_agent_index=other_agent_index,
-            current_influence=current_influence, 
+            current_influence=current_influence,
             n_agents=n_agents,
             alpha=0.3
-        ) 
+        )
         for _ in range(n_agents)
     ]
     influence_chage_functions = None
@@ -47,7 +47,7 @@ def test1():
     def distribution_function(opinion_difference: float) -> float:
         # return 1.0 / (1.0 + gamma * opinion_difference**2)
         return exp(-gamma * opinion_difference)
-    
+
     social_network = SocialNetwork.generate_random_social_network(n_agents=n_agents, seed=seed)
     social_network.set_influence_functions_of_agents(influence_chage_functions)
     social_network.set_distribution_function(distribution_function)

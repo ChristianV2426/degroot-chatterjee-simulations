@@ -1,10 +1,10 @@
 from model import SocialNetwork, Agent
 from controller import Controller
 import numpy as np
-from math import exp
+from model.precision import exp
 
 
-def test6():      
+def simulation6():
     agent0 = Agent(
         index=0,
         opinion=0.95,

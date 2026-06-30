@@ -3,7 +3,7 @@ from controller import Controller
 import numpy as np
 
 
-def test4():
+def simulation4():
     def stubborn_influence_function(iteration: int, current_influence: float, own_index: int, other_agent_index: int, *args, **kwargs) -> float:
         """
         Adjust the influence of an agent to make it stubborn, maintaining high self-influence and low influence from others.
@@ -16,7 +16,7 @@ def test4():
         - args: Positional arguments (not used here).
         - kwargs: Keyword arguments containing 'alpha'.
             - alpha (float) is the adjustment rate (controls how quickly the influence approaches the stubborn values).
-        
+
         When own_index == other_agent_index, the target influence is 1.0 (self-influence).
         When own_index != other_agent_index, the target influence is 0.0 (influence from others).
         """
@@ -26,22 +26,22 @@ def test4():
             return 1 - alpha / (iteration + 1)
         else:
             return alpha / (iteration + 1)
-    
+
     n_agents = 3
 
     influence_chage_functions = [
         lambda iteration, current_influence, own_index, other_agent_index, **kwargs: stubborn_influence_function(
-            iteration=iteration, 
-            current_influence=current_influence, 
+            iteration=iteration,
+            current_influence=current_influence,
             own_index=own_index,
             other_agent_index=other_agent_index,
             n_agents=n_agents,
             alpha=0.2
-        ) 
+        )
         for _ in range(n_agents)
     ]
     # influence_chage_functions = None
-    
+
     agent0 = Agent(
         index=0,
         opinion=0.1,

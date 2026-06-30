@@ -93,6 +93,19 @@ Pipfile.lock
 *.sublime-project
 *.sublime-workspace
 
+# AI assistant local files
+.agents/
+.codex/
+.cursor/
+.continue/
+.claude/
+.gemini/
+.aider*
+*.chat.md
+*.prompt.md
+AGENTS.md
+
+
 # Editor temporary files
 *~
 *.swp
