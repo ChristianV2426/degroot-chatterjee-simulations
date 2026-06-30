@@ -18,12 +18,14 @@ class Controller:
         self.n_iterations = n_iterations
         self.opinion_history: List[matrix] = []
         self.influence_matrix_history: deque = deque(maxlen=10)
+        self.minimum_influence_history: List = []
         self.backward_product: matrix = None
         self.network_graphs: List = []
         self.backward_product_history: List[matrix] = []
 
         self.append_opinion_vector()
         self.append_influence_matrix()
+        self.append_minimum_influence()
         self._initial_influence_matrix: matrix = self.influence_matrix_history[0]
         self.append_network_graph()
         self.backward_product = mp_eye(self.social_network.n_agents)
@@ -35,6 +37,19 @@ class Controller:
     def append_influence_matrix(self) -> None:
         """Store a copy of the current influence matrix."""
         self.influence_matrix_history.append(mp_copy(self.social_network.get_influence_matrix()))
+
+    def append_minimum_influence(self) -> None:
+        """Store the smallest positive influence in the current influence matrix."""
+        influence_matrix = self.social_network.get_influence_matrix()
+        minimum = None
+
+        for i in range(self.social_network.n_agents):
+            for j in range(self.social_network.n_agents):
+                value = influence_matrix[i, j]
+                if value > 0 and (minimum is None or value < minimum):
+                    minimum = value
+
+        self.minimum_influence_history.append(minimum)
 
     def append_network_graph(self) -> None:
         """Store a copy of the current visualization graph."""
@@ -75,6 +90,7 @@ class Controller:
 
             self.append_opinion_vector()
             self.append_influence_matrix()
+            self.append_minimum_influence()
             self.append_network_graph()
 
     def run_simulation_v2(self) -> None:
@@ -97,11 +113,16 @@ class Controller:
 
             self.append_opinion_vector()
             self.append_influence_matrix()
+            self.append_minimum_influence()
             self.append_network_graph()
 
     def plot_opinion_history(self, show_labels: bool = True) -> None:
         """Plot the stored opinion history."""
         View.plot_opinion_history(self.opinion_history, self.social_network.n_agents, show_labels=show_labels)
+
+    def plot_minimum_influence_history(self, log_scale: bool = True) -> None:
+        """Plot the smallest positive influence recorded at each iteration."""
+        View.plot_minimum_influence_history(self.minimum_influence_history, log_scale=log_scale)
 
     def display_network_graphs_animation(self, include_self_loops: bool = False, filter_vertex: int = None) -> None:
         """Display an interactive animation of the stored network graphs."""
@@ -129,6 +150,9 @@ class Controller:
 
     def get_influence_matrix_history(self) -> List[matrix]:
         return list(self.influence_matrix_history)
+
+    def get_minimum_influence_history(self) -> List:
+        return self.minimum_influence_history
 
     def get_backward_product_history(self) -> List[matrix]:
         return self.backward_product_history
@@ -169,6 +193,12 @@ class Controller:
             print(f"Iteration {first_shown_iter + i}:")
             print(self._format_influence_matrix(influence_matrix))
             print()
+
+    def print_minimum_influence_history(self) -> None:
+        """Print the smallest positive influence recorded at each iteration."""
+        for i, minimum_influence in enumerate(self.minimum_influence_history):
+            value = "None" if minimum_influence is None else mp.nstr(minimum_influence, 50)
+            print(f"Iteration {i}: {value}")
 
     def print_backward_product_history(self) -> None:
         """Print the stored backward product matrices."""

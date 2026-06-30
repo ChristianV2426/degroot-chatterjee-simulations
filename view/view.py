@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import List
 
-from model.precision import matrix, to_float64_matrix
+from model.precision import matrix, mp, to_float64_matrix
 from model.social_network import SocialNetwork
 
 
@@ -44,6 +44,36 @@ class View:
             plt.legend(loc='best')
         plt.grid(True)
 
+        plt.show()
+
+    @staticmethod
+    def plot_minimum_influence_history(minimum_influence_history: List, log_scale: bool = False) -> None:
+        """
+        Plot the smallest positive influence recorded at each iteration.
+
+        Log scale is useful when the minimum influence becomes very small.
+        """
+        iteration_range = range(len(minimum_influence_history))
+
+        if log_scale:
+            values = [
+                float(mp.log10(value)) if value is not None and value > 0 else np.nan
+                for value in minimum_influence_history
+            ]
+            ylabel = "log10(Minimum positive influence)"
+        else:
+            values = [
+                float(value) if value is not None else np.nan
+                for value in minimum_influence_history
+            ]
+            ylabel = "Minimum positive influence"
+
+        plt.figure()
+        plt.plot(iteration_range, values)
+        plt.xlabel("Time")
+        plt.ylabel(ylabel)
+        plt.title("Minimum Influence Over Time")
+        plt.grid(True)
         plt.show()
 
     @staticmethod

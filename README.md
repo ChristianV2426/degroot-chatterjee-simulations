@@ -98,6 +98,7 @@ standard Python floats.
 The `view/` module provides:
 
 - opinion history plots,
+- minimum positive influence plots,
 - directed influence graph rendering,
 - graph animations controlled with the left and right arrow keys.
 
